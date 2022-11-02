@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 3.18)
-project(LibMolGrid LANGUAGES C CXX CUDA)
+if(NOT CPU_ONLY)
+  project(LibMolGrid LANGUAGES C CXX CUDA)
+else()
+  project(LibMolGrid LANGUAGES C CXX)
+endif()
 
 #version number
 set (VERSION_MAJOR 0)
@@ -35,7 +39,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
 #dependencies
-find_package(CUDA REQUIRED)
+if(NOT CPU_ONLY)
+  find_package(CUDA REQUIRED)
+endif()
 find_package(Boost REQUIRED COMPONENTS regex unit_test_framework program_options system filesystem iostreams)
 find_package(OpenBabel3 REQUIRED)
 include_directories(SYSTEM ${OPENBABEL3_INCLUDE_DIR})
@@ -49,7 +55,9 @@ configure_file (
   )
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CUDA_STANDARD 14)
+if(NOT CPU_ONLY)
+  set(CMAKE_CUDA_STANDARD 14)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -Werror")
@@ -61,15 +69,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     endif()	
 endif()
 
-if(CUDA_VERSION_MAJOR LESS 11)
-#compile for all major architectures >= 35
- set(CMAKE_CUDA_ARCHITECTURES 35 50 60 70 75 80)
-else()
- set(CMAKE_CUDA_ARCHITECTURES 52 60 70 75 80)
-endif()
+if(NOT CPU_ONLY)
+  if(CUDA_VERSION_MAJOR LESS 11)
+  #compile for all major architectures >= 35
+   set(CMAKE_CUDA_ARCHITECTURES 35 50 60 70 75 80)
+  else()
+   set(CMAKE_CUDA_ARCHITECTURES 52 60 70 75 80)
+  endif()
 
-set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -g -lineinfo")
-set(CMAKE_CUDA_FLAGS_DEBUG "-O0 -g -G")
+
+  set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -g -lineinfo")
+  set(CMAKE_CUDA_FLAGS_DEBUG "-O0 -g -G")
+endif()
 
 # add the binary tree to the search path for include files
 # so that we will find libmolgrid_config.h
