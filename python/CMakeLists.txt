@@ -14,8 +14,11 @@ if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
 	find_package( Boost COMPONENTS system filesystem python${PYTHON_VERSION_MAJOR} REQUIRED )
 else()
 #minor version numbers requires newer (3.12?) version of cmake   
+  #find_package( Boost COMPONENTS system filesystem python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR} REQUIRED )
+  message(${PYTHON_VERSION_MAJOR} " " ${PYTHON_VERSION_MINOR})
   find_package( Boost COMPONENTS system filesystem python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR} REQUIRED )
 endif()
+
 
 find_package( NumPy )
 
