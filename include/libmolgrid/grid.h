@@ -18,7 +18,7 @@
 namespace libmolgrid {
 
 template<typename Dt, std::size_t ND> class ManagedGrid; //predeclare
-
+#ifdef CPU_ONLY
 inline cudaMemcpyKind copyKind(bool srcCUDA, bool destCUDA) {
   if (srcCUDA) {
     if (destCUDA)
@@ -32,6 +32,13 @@ inline cudaMemcpyKind copyKind(bool srcCUDA, bool destCUDA) {
       return cudaMemcpyHostToHost;
   }
 }
+#else
+#define cudaMemcpyKind int
+inline cudaMemcpyKind copyKind(bool srcCUDA, bool destCUDA) { return 0; }
+#endif
+
+
+
 
 /**
  * \class Grid

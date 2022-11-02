@@ -9,8 +9,10 @@
 
 #include <memory>
 #include <cstring>
+#ifdef CPU_ONLY
 #include <cuda_runtime_api.h>
 #include <cuda.h>
+#endif
 
 #ifdef __CUDACC__
 #define CUDA_CALLABLE_MEMBER __host__ __device__
@@ -21,11 +23,24 @@
 #endif
 
 //called in device code to perform a parallel operation
+#ifndef __CUDACC__
+#define blockIdx.x
+#define LMG_CUDA_KERNEL_LOOP(i, n) \
+    #define __global__
+    int threadIdxX;
+    int blockIdxX;
+    int blockDimX;
+    int gridDimX;
+#define LMG_CUDA_KERNEL_LOOP(i, n) \
+  for (int i = blockIdxX * blockDimX + threadIdxX; \
+       i < (n); \
+       i += blockDimX * gridDimX)
+#else
 #define LMG_CUDA_KERNEL_LOOP(i, n) \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; \
        i < (n); \
        i += blockDim.x * gridDim.x)
-
+#endif
 // CUDA: use 512 threads per block
 #define LMG_CUDA_NUM_THREADS 512
 #define LMG_CUDA_BLOCKDIM 8
